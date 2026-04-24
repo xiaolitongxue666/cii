@@ -9,6 +9,8 @@
 # 调试与临时文件
 *.ilk
 *.pdb
+*.stackdump
+*.out
 *~
 .DS_Store
 Thumbs.db

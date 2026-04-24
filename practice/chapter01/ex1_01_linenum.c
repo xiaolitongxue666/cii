@@ -33,6 +33,15 @@ int linenum;
  *
  * 若合并成一个循环，无法在同一套条件里既「跳过任意长空白」又「只收集非空白」。
  * 书中步骤名：<scan forward to a nonspace or EOF>，<copy the word into buf[0..size-1]>。
+ *
+ * 参数约定：
+ *   fp   - 输入流，要求可读；
+ *   buf  - 输出缓冲区，函数会保证写入 '\0' 结尾；
+ *   size - 缓冲区容量，建议 >= 2（至少容纳一个字符和终止符）。
+ *
+ * 返回值：
+ *   1 表示成功读到一个非空单词；
+ *   0 表示遇到 EOF 且本次未形成单词。
  */
 int getword(FILE *fp, char *buf, int size) {
 	int c;
@@ -43,13 +52,18 @@ int getword(FILE *fp, char *buf, int size) {
 			linenum++;
 	{
 		int i = 0;
-		/* 第二个 for：单词体扫描（!isspace 则属于词）；退出时 c 为 EOF 或词尾空白，不入 buf */
+		/*
+		 * 第二个 for：单词体扫描（!isspace 则属于词）。
+		 * - i < size - 1 时才写入，避免溢出；
+		 * - 退出时 c 为 EOF 或词尾空白，不属于单词，后续可能回推。
+		 */
 		for (; c != EOF && !isspace(c); c = getc(fp))
 			if (i < size - 1)
 				buf[i++] = tolower((unsigned char)c);
 		if (i < size)
 			buf[i] = '\0';
 	}
+	/* 回推“分隔符字符”，让下一次调用从正确边界继续。 */
 	if (c != EOF)
 		ungetc(c, fp);
 	return buf[0] != '\0';
@@ -69,6 +83,8 @@ _Static_assert(CH1_EX1_1_INCREMENT_AFTER_WORD_ENDS_WITH_NL == 0,
 int main(void) {
 	char buf[32];
 	FILE *fp = tmpfile();
+
+	/* 最小行为自测：输入 "hi\\n" 时，能够稳定读取一个词且流程无断言失败。 */
 	assert(fp != NULL);
 	assert(fputs("hi\n", fp) >= 0);
 	assert(fflush(fp) == 0);

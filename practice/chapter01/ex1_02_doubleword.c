@@ -22,6 +22,12 @@
 
 int linenum;
 
+/*
+ * 词法读取工具：
+ * - 忽略前导空白，并在遇到换行时更新 linenum；
+ * - 将一个词（连续非空白字符）写入 buf；
+ * - 若词长超过 buf，可容忍截断但始终保持 '\0' 终止。
+ */
 int getword(FILE *fp, char *buf, int size) {
 	int c;
 	c = getc(fp);
@@ -38,10 +44,11 @@ int getword(FILE *fp, char *buf, int size) {
 	}
 	if (c != EOF)
 		ungetc(c, fp);
+	/* 返回 1 代表本次生成了非空 token，返回 0 代表 EOF。 */
 	return buf[0] != '\0';
 }
 
-/* 原版 doubleword：每个相邻相等对都打印 */
+/* 原版 doubleword：每个相邻相等对都打印，因此 n 连续重复会产生 n-1 次计数。 */
 static int doubleword_original_print_count(char *name, FILE *fp) {
 	char prev[128], word[128];
 	int count = 0;
@@ -68,11 +75,12 @@ static int doubleword_fixed_print_count(FILE *fp) {
 
 	linenum = 1;
 	prev[0] = '\0';
+	/* 函数内部自管理输入位置，确保调用时不依赖外部光标状态。 */
 	rewind(fp);
 	while (getword(fp, word, (int)sizeof word)) {
 		if (isalpha((unsigned char)word[0]) && strcmp(prev, word) == 0) {
 #if CH1_EX1_2_MODE == 1
-			/* 连续相等段内只在第一次相邻相等时计数，避免 a a a 打出两行 */
+			/* 连续相等段内只在第一次相邻相等时计数，避免 "a a a" 打出两行。 */
 			if (!in_dup_streak) {
 				count++;
 				in_dup_streak = 1;
@@ -84,6 +92,7 @@ static int doubleword_fixed_print_count(FILE *fp) {
 			}
 #endif
 		} else {
+			/* 一旦断开相等段，允许下一个新重复段再次触发计数。 */
 			in_dup_streak = 0;
 		}
 		strcpy(prev, word);
@@ -94,6 +103,7 @@ static int doubleword_fixed_print_count(FILE *fp) {
 #if CH1_EX1_2_MODE == 1
 static void self_test(void) {
 	FILE *fp = tmpfile();
+	/* 关键用例：3 连重复只能报告 1 次。 */
 	assert(fp != NULL);
 	assert(fputs("a a a\n", fp) >= 0);
 	assert(fflush(fp) == 0);

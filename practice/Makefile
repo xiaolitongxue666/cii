@@ -33,17 +33,33 @@ LDFLAGS ?=
 RM ?= rm -f
 MKDIR ?= mkdir -p
 
-EX1_01 := $(BUILDDIR)/ex1-01$(EXEEXT)
-EX1_02 := $(BUILDDIR)/ex1-02$(EXEEXT)
-EX1_03 := $(BUILDDIR)/ex1-03$(EXEEXT)
+define EX_BIN
+$(BUILDDIR)/ex$(1)-$(2)$(EXEEXT)
+endef
 
-.PHONY: all clean ex1-01 ex1-02 ex1-03 run-ex1-01 run-ex1-02 run-ex1-03
+EX1_01 := $(call EX_BIN,1,01)
+EX1_02 := $(call EX_BIN,1,02)
+EX1_03 := $(call EX_BIN,1,03)
+EX2_01 := $(call EX_BIN,2,01)
+EX2_02 := $(call EX_BIN,2,02)
+EX2_03 := $(call EX_BIN,2,03)
+EX2_04 := $(call EX_BIN,2,04)
+EX2_05 := $(call EX_BIN,2,05)
 
-all: ex1-01 ex1-02 ex1-03
+.PHONY: all clean \
+	ex1-01 ex1-02 ex1-03 ex2-01 ex2-02 ex2-03 ex2-04 ex2-05 \
+	run-ex1-01 run-ex1-02 run-ex1-03 run-ex2-01 run-ex2-02 run-ex2-03 run-ex2-04 run-ex2-05
+
+all: ex1-01 ex1-02 ex1-03 ex2-01 ex2-02 ex2-03 ex2-04 ex2-05
 
 ex1-01: $(EX1_01)
 ex1-02: $(EX1_02)
 ex1-03: $(EX1_03)
+ex2-01: $(EX2_01)
+ex2-02: $(EX2_02)
+ex2-03: $(EX2_03)
+ex2-04: $(EX2_04)
+ex2-05: $(EX2_05)
 
 $(BUILDDIR):
 	$(MKDIR) $@
@@ -57,12 +73,37 @@ $(EX1_02): chapter01/ex1_02_doubleword.c | $(BUILDDIR)
 $(EX1_03): chapter01/ex1_03_strcpy.c | $(BUILDDIR)
 	$(PRAC_CC) $(CFLAGS) -Wall $(LDFLAGS) -o $@ $<
 
+$(EX2_01): chapter02/ex2_01_divtest.c | $(BUILDDIR)
+	$(PRAC_CC) $(CFLAGS) -Wall -Wextra $(LDFLAGS) -o $@ $<
+
+$(EX2_02): chapter02/ex2_02_cross_arith.c | $(BUILDDIR)
+	$(PRAC_CC) $(CFLAGS) -Wall -Wextra $(LDFLAGS) -o $@ $<
+
+$(EX2_03): chapter02/ex2_03_stack_guard.c | $(BUILDDIR)
+	$(PRAC_CC) $(CFLAGS) -Wall -Wextra $(LDFLAGS) -o $@ $<
+
+$(EX2_04): chapter02/ex2_04_badptr.c | $(BUILDDIR)
+	$(PRAC_CC) $(CFLAGS) -Wall -Wextra $(LDFLAGS) -o $@ $<
+
+$(EX2_05): chapter02/ex2_05_stack_alt.c | $(BUILDDIR)
+	$(PRAC_CC) $(CFLAGS) -Wall -Wextra $(LDFLAGS) -o $@ $<
+
 run-ex1-01: $(EX1_01)
 	@$(EX1_01)
 run-ex1-02: $(EX1_02)
 	@$(EX1_02)
 run-ex1-03: $(EX1_03)
 	@$(EX1_03)
+run-ex2-01: $(EX2_01)
+	@$(EX2_01)
+run-ex2-02: $(EX2_02)
+	@$(EX2_02)
+run-ex2-03: $(EX2_03)
+	@$(EX2_03)
+run-ex2-04: $(EX2_04)
+	@$(EX2_04)
+run-ex2-05: $(EX2_05)
+	@$(EX2_05)
 
 clean:
 	$(RM) -r $(BUILDDIR)
