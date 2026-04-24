@@ -12,3 +12,14 @@ For more information, visit https://drh.github.io/cii/.
 -----
 David R. Hanson
 drh at drhanson.net / https://drh.github.io/
+
+--------------------------------------------------------------------------------
+Local practice (this fork)
+
+Chapter 1 exercises are under `practice/`. From the repository root:
+
+```sh
+make practice
+```
+
+Or `cd practice` and use `make`, `make run-ex1-01`, etc. See `practice/README.md`.

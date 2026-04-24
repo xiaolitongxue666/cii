@@ -1,0 +1,14 @@
+# 构建目录（Makefile 默认输出）
+/build/
+
+# 对象文件与可执行文件（若在 practice 根目录误编译会产生）
+*.o
+*.obj
+*.exe
+
+# 调试与临时文件
+*.ilk
+*.pdb
+*~
+.DS_Store
+Thumbs.db
